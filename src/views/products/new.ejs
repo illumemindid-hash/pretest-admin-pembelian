@@ -1,0 +1,46 @@
+<%- include("../layout.ejs") %>
+
+<h3 class="mb-3">Tambah Produk</h3>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" action="/products">
+      <div class="mb-2">
+        <label class="form-label">SKU</label>
+        <input class="form-control" name="sku" required />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Nama</label>
+        <input class="form-control" name="name" required />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Harga</label>
+        <input
+          class="form-control"
+          name="price"
+          type="number"
+          min="0"
+          value="0"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Stok awal</label>
+        <input
+          class="form-control"
+          name="qty"
+          type="number"
+          min="0"
+          value="0"
+        />
+      </div>
+
+      <button class="btn btn-primary" type="submit">Simpan</button>
+      <a class="btn btn-secondary" href="/products">Batal</a>
+    </form>
+  </div>
+</div>
+
+<%- include("../footer.ejs") %>

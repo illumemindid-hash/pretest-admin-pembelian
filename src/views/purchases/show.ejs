@@ -1,0 +1,76 @@
+<%- include("../layout.ejs") %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="m-0">Detail Pembelian</h3>
+    <div class="text-muted">
+      Invoice: <b><%= purchase.invoice_no %></b> | ID: <%= purchase.id %>
+    </div>
+  </div>
+  <a class="btn btn-secondary" href="/purchases">Kembali</a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body d-flex justify-content-between align-items-center">
+    <div>
+      <div>
+        Status:
+        <% if (purchase.status === "ACTIVE") { %>
+          <span class="badge bg-success">ACTIVE</span>
+        <% } else { %>
+          <span class="badge bg-secondary">CANCELLED</span>
+        <% } %>
+      </div>
+
+      <div class="text-muted">
+        Created: <%= new Date(purchase.created_at).toLocaleString("id-ID") %>
+      </div>
+
+      <% if (purchase.cancelled_at) { %>
+        <div class="text-muted">
+          Cancelled: <%= new Date(purchase.cancelled_at).toLocaleString("id-ID") %>
+        </div>
+      <% } %>
+    </div>
+
+    <% if (purchase.status === "ACTIVE") { %>
+      <form method="POST"
+            action="/purchases/<%= purchase.id %>/cancel"
+            onsubmit="return confirm('Yakin cancel pembelian ini? Stok akan dikembalikan.')">
+        <button class="btn btn-danger" type="submit">Cancel Pembelian</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-sm table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Produk</th>
+          <th class="text-end">Harga</th>
+          <th class="text-end">Qty</th>
+          <th class="text-end">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(it => { %>
+          <tr>
+            <td>
+              <%= it.name %>
+              <span class="text-muted">(<%= it.sku %>)</span>
+            </td>
+            <td class="text-end">
+              Rp <%= Number(it.price).toLocaleString("id-ID") %>
+            </td>
+            <td class="text-end"><%= it.qty %></td>
+            <td class="text-end">
+              Rp <%= (Number(it.price) * Number(it.qty)).toLocaleString("id-ID") %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

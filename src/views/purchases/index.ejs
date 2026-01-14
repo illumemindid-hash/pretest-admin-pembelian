@@ -1,0 +1,47 @@
+<%- include("../layout.ejs") %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="m-0">Pembelian</h3>
+  <a class="btn btn-primary" href="/purchases/new">+ Input Pembelian</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-sm table-striped align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Invoice</th>
+          <th>Status</th>
+          <th>Tanggal</th>
+          <th class="text-end">Total</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% purchases.forEach(p => { %>
+          <tr>
+            <td><%= p.id %></td>
+            <td><%= p.invoice_no %></td>
+            <td>
+              <% if (p.status === "ACTIVE") { %>
+                <span class="badge bg-success">ACTIVE</span>
+              <% } else { %>
+                <span class="badge bg-secondary">CANCELLED</span>
+              <% } %>
+            </td>
+            <td><%= new Date(p.created_at).toLocaleString("id-ID") %></td>
+            <td class="text-end">Rp <%= Number(p.total).toLocaleString("id-ID") %></td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-dark" href="/purchases/<%= p.id %>">Detail</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+<%- include("../footer.ejs") %>

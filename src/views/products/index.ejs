@@ -1,0 +1,37 @@
+<%- include("../layout.ejs") %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="m-0">Produk</h3>
+  <a class="btn btn-primary" href="/products/new">+ Tambah Produk</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table table-sm table-striped align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>SKU</th>
+          <th>Nama</th>
+          <th class="text-end">Harga</th>
+          <th class="text-end">Stok</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% products.forEach(p => { %>
+          <tr>
+            <td><%= p.id %></td>
+            <td><%= p.sku %></td>
+            <td><%= p.name %></td>
+            <td class="text-end">Rp <%= Number(p.price).toLocaleString("id-ID") %></td>
+            <td class="text-end"><%= (p.qty ?? 0) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+<%- include("../footer.ejs") %>

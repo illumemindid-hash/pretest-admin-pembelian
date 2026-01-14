@@ -1,0 +1,153 @@
+<%- include("../layout.ejs") %>
+
+<h3 class="mb-3">Input Pembelian</h3>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Invoice No</label>
+        <input id="invoice" class="form-control" placeholder="INV-0001" />
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label">Produk</label>
+        <select id="product" class="form-select">
+          <% products.forEach(p => { %>
+            <option value="<%= p.id %>" data-price="<%= p.price %>" data-stock="<%= p.qty %>">
+              <%= p.name %> (<%= p.sku %>) - stok: <%= p.qty %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Qty</label>
+        <input id="qty" type="number" min="1" class="form-control" value="1"/>
+      </div>
+
+      <div class="col-md-1 d-grid">
+        <button id="addBtn" class="btn btn-dark" type="button">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h6 class="mb-2">Items</h6>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle" id="itemsTable">
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th class="text-end">Harga</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-end">Total</th>
+            <th class="text-end" id="totalCell">Rp 0</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <form id="submitForm" method="POST" action="/purchases">
+      <input type="hidden" name="invoice_no" id="invoiceHidden"/>
+      <input type="hidden" name="items" id="itemsHidden"/>
+      <button class="btn btn-primary" type="submit">Simpan Pembelian</button>
+      <a class="btn btn-secondary" href="/purchases">Batal</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  const items = [];
+
+  const productEl = document.getElementById("product");
+  const qtyEl = document.getElementById("qty");
+  const addBtn = document.getElementById("addBtn");
+  const tbody = document.querySelector("#itemsTable tbody");
+  const totalCell = document.getElementById("totalCell");
+
+  const invoiceEl = document.getElementById("invoice");
+  const invoiceHidden = document.getElementById("invoiceHidden");
+  const itemsHidden = document.getElementById("itemsHidden");
+  const submitForm = document.getElementById("submitForm");
+
+  function rupiah(n){
+    return "Rp " + Number(n).toLocaleString("id-ID");
+  }
+
+  function render(){
+    tbody.innerHTML = "";
+    let total = 0;
+
+    items.forEach((it, idx) => {
+      const subtotal = it.qty * it.price;
+      total += subtotal;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${it.name}</td>
+        <td class="text-end">${rupiah(it.price)}</td>
+        <td class="text-end">${it.qty}</td>
+        <td class="text-end">${rupiah(subtotal)}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-danger" data-idx="${idx}" type="button">Hapus</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    totalCell.textContent = rupiah(total);
+
+    tbody.querySelectorAll("button[data-idx]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-idx"));
+        items.splice(i, 1);
+        render();
+      });
+    });
+  }
+
+  addBtn.addEventListener("click", () => {
+    const opt = productEl.options[productEl.selectedIndex];
+    const product_id = Number(opt.value);
+    const price = Number(opt.getAttribute("data-price") || 0);
+    const stock = Number(opt.getAttribute("data-stock") || 0);
+    const qty = Number(qtyEl.value || 0);
+
+    // Nama produk ambil text option
+    const name = opt.textContent.trim();
+
+    if (!qty || qty <= 0) return alert("Qty harus > 0");
+    if (qty > stock) return alert("Qty melebihi stok tersedia");
+
+    items.push({ product_id, qty, price, name });
+    render();
+  });
+
+  submitForm.addEventListener("submit", (e) => {
+    if (!invoiceEl.value.trim()) {
+      e.preventDefault();
+      return alert("Invoice No wajib diisi");
+    }
+    if (items.length === 0) {
+      e.preventDefault();
+      return alert("Minimal 1 item");
+    }
+
+    invoiceHidden.value = invoiceEl.value.trim();
+    itemsHidden.value = JSON.stringify(items.map(x => ({ product_id: x.product_id, qty: x.qty })));
+  });
+</script>
+
+<%- include("../footer.ejs") %>
